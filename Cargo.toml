@@ -2,8 +2,32 @@
 name = "mock-io"
 version = "0.1.0"
 authors = ["Devashish Dixit <devashishdxt@gmail.com>"]
+license = "MIT/Apache-2.0"
+description = "A crate with mock IO stream and listener implementations"
+homepage = "https://github.com/devashishdxt/mock-io"
+repository = "https://github.com/devashishdxt/mock-io"
+categories = ["testing", "network-programming"]
+keywords = ["mock", "io", "mock-stream", "mockstream"]
+readme = "README.md"
+include = ["Cargo.toml", "src/**/*.rs", "README.md"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[package.metadata.docs.rs]
+features = ["doc"]
+rustdoc-args = ["--cfg", "feature=\"doc\""]
+
 [dependencies]
+async-channel = { version = "1.5", optional = true }
+futures-io = { version = "0.3", optional = true }
+pin-project-lite = { version = "0.1", optional = true }
+thiserror = "1.0"
+tokio = { version = "0.3", features = ["sync"], optional = true }
+
+[features]
+default = ["async-tokio", "sync"]
+async-futures = ["async-channel", "futures-io", "pin-project-lite"]
+async-tokio = ["pin-project-lite", "tokio"]
+doc = []
+sync = []
