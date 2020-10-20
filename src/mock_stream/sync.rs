@@ -142,7 +142,7 @@ mod tests {
 
         let mut buf = [0; 8];
         assert!(matches!(receiver.read(&mut buf), Ok(8)));
-        assert_eq!(one, buf[..]);
+        assert_eq!(one[..], buf[..]);
 
         assert!(matches!(sender.write(&one), Ok(8)));
 
