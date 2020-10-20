@@ -12,10 +12,10 @@ pub struct MockListener {
 
 impl MockListener {
     /// Creates a new asynchronous mock listener
-    pub fn new() -> (Self, Sender<MockStream>) {
+    pub fn new() -> (Self, Handle) {
         let (sender, receiver) = unbounded();
 
-        (Self { receiver }, sender)
+        (Self { receiver }, Handle { sender })
     }
 
     /// Accept a new connection. Returns a mock stream supplied by the sender
