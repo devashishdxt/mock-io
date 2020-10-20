@@ -26,7 +26,7 @@ thiserror = "1.0"
 tokio = { version = "0.3", features = ["sync"], optional = true }
 
 [features]
-default = ["async-tokio", "sync"]
+default = ["sync"]
 async-futures = ["async-channel", "futures-io", "pin-project-lite"]
 async-tokio = ["pin-project-lite", "tokio"]
 doc = []
