@@ -13,7 +13,7 @@ Add `mock-io` in your `Cargo.toml`'s `dependencies` section:
 
 ```toml
 [dependencies]
-mock-io = "0.1"
+mock-io = "0.2"
 ```
 
 Here is a sample usage of this crate:
