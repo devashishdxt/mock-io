@@ -21,7 +21,8 @@ jobs:
           override: true
       - uses: actions-rs/cargo@v1
         with:
-          command: check --all-features
+          command: check
+          args: --all-features
 
   test:
     name: Test Suite
@@ -66,5 +67,5 @@ jobs:
       - run: rustup component add clippy
       - uses: actions-rs/cargo@v1
         with:
-          command: clippy --all-features
-          args: -- -D warnings
+          command: clippy
+          args: --all-features -- -D warnings
