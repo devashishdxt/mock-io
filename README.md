@@ -1,5 +1,7 @@
 # mock-io
 
+![CI](https://github.com/devashishdxt/mock-io/workflows/CI/badge.svg)
+
 A crate with mock IO stream and listener implementations.
 
 ## Usage
