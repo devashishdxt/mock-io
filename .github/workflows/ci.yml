@@ -17,12 +17,12 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          toolchain: stable
           override: true
       - uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --all-features
+          args: --features full
 
   test:
     name: Test Suite
@@ -37,6 +37,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
+          args: --features full
 
   fmt:
     name: Rustfmt
@@ -62,10 +63,10 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          toolchain: stable
           override: true
       - run: rustup component add clippy
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all-features -- -D warnings
+          args: --features full -- -D warnings

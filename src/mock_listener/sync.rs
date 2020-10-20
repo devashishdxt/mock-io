@@ -32,3 +32,34 @@ impl Handle {
         self.sender.send(mock_stream).map_err(Into::into)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use std::{
+        io::{Read, Write},
+        thread,
+    };
+
+    #[test]
+    fn check_listener_flow() {
+        let (listener, handle) = MockListener::new();
+
+        thread::spawn(move || {
+            let mut stream = MockStream::connect(&handle).unwrap();
+            stream.write(&1u64.to_be_bytes()).unwrap();
+            stream.write(&2u64.to_be_bytes()).unwrap();
+        });
+
+        while let Ok(mut stream) = listener.accept() {
+            let mut buf = [0; 8];
+
+            stream.read(&mut buf).unwrap();
+            assert_eq!(1u64.to_be_bytes(), buf);
+
+            stream.read(&mut buf).unwrap();
+            assert_eq!(2u64.to_be_bytes(), buf);
+        }
+    }
+}

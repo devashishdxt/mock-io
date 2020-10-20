@@ -38,3 +38,43 @@ impl Handle {
         self.sender.send(mock_stream).map_err(Into::into)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use tokio::{
+        io::{AsyncReadExt, AsyncWriteExt},
+        task,
+    };
+
+    #[tokio::test]
+    async fn check_listener_flow() {
+        let (mut listener, handle) = MockListener::new();
+
+        task::spawn(async move {
+            let mut stream = MockStream::connect(&handle).unwrap();
+            stream.write(&1u64.to_be_bytes()).await.unwrap();
+            stream.write(&2u64.to_be_bytes()).await.unwrap();
+        });
+
+        while let Ok(mut stream) = listener.accept().await {
+            let mut buf = [0; 1];
+            stream.read(&mut buf).await.unwrap();
+            assert_eq!([0], buf);
+
+            let mut buf = [0; 3];
+            stream.read(&mut buf).await.unwrap();
+            assert_eq!([0, 0, 0], buf);
+
+            let mut buf = [0; 4];
+            stream.read(&mut buf).await.unwrap();
+            assert_eq!([0, 0, 0, 1], buf);
+
+            let mut buf = [0; 8];
+
+            stream.read(&mut buf).await.unwrap();
+            assert_eq!(2u64.to_be_bytes(), buf);
+        }
+    }
+}

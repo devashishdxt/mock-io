@@ -181,3 +181,33 @@ impl AsyncWrite for WriteHalf {
         Poll::Ready(Ok(()))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+    #[tokio::test]
+    async fn check_stream_communication() {
+        let one = 1u64.to_be_bytes().to_vec();
+
+        let (mut sender, mut receiver) = MockStream::pair();
+
+        assert!(matches!(sender.write(&one).await, Ok(8)));
+
+        let mut buf = [0; 8];
+        assert!(receiver.read(&mut buf).await.is_ok());
+        assert_eq!(one[..], buf[..]);
+
+        assert!(matches!(sender.write(&one).await, Ok(8)));
+
+        let mut buf = [0; 4];
+        assert!(receiver.read(&mut buf).await.is_ok());
+        assert_eq!(one[..4], buf[..]);
+
+        let mut buf = [0; 4];
+        assert!(receiver.read(&mut buf).await.is_ok());
+        assert_eq!(one[4..], buf[..]);
+    }
+}

@@ -15,8 +15,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [package.metadata.docs.rs]
-features = ["doc"]
-rustdoc-args = ["--cfg", "feature=\"doc\""]
+all-features = true
 
 [dependencies]
 async-channel = { version = "1.5", optional = true }
@@ -25,9 +24,13 @@ pin-project-lite = { version = "0.1", optional = true }
 thiserror = "1.0"
 tokio = { version = "0.3", features = ["sync"], optional = true }
 
+[dev-dependencies]
+tokio = { version = "0.3", features = ["io-util", "macros", "rt-multi-thread"] }
+
 [features]
 default = ["sync"]
 async-futures = ["async-channel", "futures-io", "pin-project-lite"]
 async-tokio = ["pin-project-lite", "tokio"]
 doc = []
+full = ["async-futures", "async-tokio", "sync"]
 sync = []
