@@ -1,6 +1,9 @@
 # mock-io
 
-![CI](https://github.com/devashishdxt/mock-io/workflows/CI/badge.svg)
+![[CI](https://github.com/devashishdxt/mock-io/workflows/CI/badge.svg)](https://github.com/devashishdxt/mock-io/actions)
+![[Crates.io](https://img.shields.io/crates/v/mock-io)](https://crates.io/crates/mock-io)
+[![Documentation](https://docs.rs/mock-io/badge.svg)](https://docs.rs/mock-io)
+[![License](https://img.shields.io/crates/l/mock-io)](https://github.com/devashishdxt/mock-io/blob/master/LICENSE-MIT)
 
 A crate with mock IO stream and listener implementations.
 
