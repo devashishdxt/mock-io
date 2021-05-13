@@ -120,7 +120,7 @@ impl ReadHalf {
 
             Ok(available_space)
         } else {
-            buf.copy_from_slice(&self.remaining[..remaining_len]);
+            buf[..remaining_len].copy_from_slice(&self.remaining);
             self.remaining = Default::default();
 
             Ok(remaining_len)

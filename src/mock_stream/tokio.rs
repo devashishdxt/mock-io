@@ -128,7 +128,7 @@ impl ReadHalf {
 
             Ok(())
         } else {
-            buf.put_slice(&self.remaining[..remaining_len]);
+            buf.put_slice(&self.remaining);
             self.remaining = Default::default();
 
             Ok(())
@@ -196,18 +196,18 @@ mod tests {
 
         assert!(matches!(sender.write(&one).await, Ok(8)));
 
-        let mut buf = [0; 8];
-        assert!(receiver.read(&mut buf).await.is_ok());
-        assert_eq!(one[..], buf[..]);
+        let mut buf = [0; 10];
+        assert!(matches!(receiver.read(&mut buf).await, Ok(8)));
+        assert_eq!(one[..], buf[..8]);
 
         assert!(matches!(sender.write(&one).await, Ok(8)));
 
         let mut buf = [0; 4];
-        assert!(receiver.read(&mut buf).await.is_ok());
+        assert!(matches!(receiver.read(&mut buf).await, Ok(4)));
         assert_eq!(one[..4], buf[..]);
 
         let mut buf = [0; 4];
-        assert!(receiver.read(&mut buf).await.is_ok());
+        assert!(matches!(receiver.read(&mut buf).await, Ok(4)));
         assert_eq!(one[4..], buf[..]);
     }
 }

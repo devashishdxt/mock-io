@@ -88,7 +88,7 @@ impl ReadHalf {
 
             Ok(available_space)
         } else {
-            buf.copy_from_slice(&self.remaining[..remaining_len]);
+            buf[..remaining_len].copy_from_slice(&self.remaining);
             self.remaining = Default::default();
 
             Ok(remaining_len)
@@ -140,9 +140,9 @@ mod tests {
 
         assert!(matches!(sender.write(&one), Ok(8)));
 
-        let mut buf = [0; 8];
+        let mut buf = [0; 10];
         assert!(matches!(receiver.read(&mut buf), Ok(8)));
-        assert_eq!(one[..], buf[..]);
+        assert_eq!(one[..], buf[..8]);
 
         assert!(matches!(sender.write(&one), Ok(8)));
 
