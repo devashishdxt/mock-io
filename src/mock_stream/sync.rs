@@ -1,6 +1,7 @@
 use std::{
     io::{self, Read, Write},
     sync::mpsc::{channel, Receiver, Sender},
+    time::Duration,
 };
 
 use crate::{error::Error, sync::Handle};
@@ -28,6 +29,7 @@ impl MockStream {
             read_half: ReadHalf {
                 receiver: receiver_1,
                 remaining: Default::default(),
+                timeout: None,
             },
             write_half: WriteHalf { sender: sender_2 },
         };
@@ -36,6 +38,7 @@ impl MockStream {
             read_half: ReadHalf {
                 receiver: receiver_2,
                 remaining: Default::default(),
+                timeout: None,
             },
             write_half: WriteHalf { sender: sender_1 },
         };
@@ -46,6 +49,20 @@ impl MockStream {
     /// Splits the stream into separate read and write halves
     pub fn split(self) -> (ReadHalf, WriteHalf) {
         (self.read_half, self.write_half)
+    }
+
+    /// Sets the read timeout to the timeout specified.
+    ///
+    /// If the value specified is `None`, then read calls will block indefinitely.
+    /// An `Err` is returned if the zero `Duration` is passed to this method.
+    pub fn set_read_timeout(&mut self, dur: Option<Duration>) -> io::Result<()> {
+        if let Some(timeout) = dur {
+            if timeout.is_zero() {
+                return Err(io::Error::new(io::ErrorKind::InvalidInput, "zero duration"));
+            }
+        }
+        self.read_half.timeout = dur;
+        Ok(())
     }
 }
 
@@ -70,6 +87,7 @@ impl Write for MockStream {
 pub struct ReadHalf {
     receiver: Receiver<Vec<u8>>,
     remaining: Vec<u8>,
+    timeout: Option<Duration>,
 }
 
 impl ReadHalf {
@@ -77,7 +95,11 @@ impl ReadHalf {
         let available_space = buf.len();
 
         if self.remaining.is_empty() {
-            self.remaining = self.receiver.recv()?;
+            if let Some(timeout) = self.timeout {
+                self.remaining = self.receiver.recv_timeout(timeout)?;
+            } else {
+                self.remaining = self.receiver.recv()?;
+            }
         }
 
         let remaining_len = self.remaining.len();

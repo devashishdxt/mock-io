@@ -1,5 +1,5 @@
 //! Error types used in this crate
-use std::{error::Error as IError, fmt};
+use std::{error::Error as IError, fmt, sync::mpsc, io};
 
 use thiserror::Error;
 
@@ -31,7 +31,12 @@ impl IError for Error {
 #[doc(hidden)]
 impl From<Error> for std::io::Error {
     fn from(error: Error) -> Self {
-        std::io::Error::new(std::io::ErrorKind::Other, error)
+        match error {
+            Error { inner: Inner::SyncRecvTimeoutError(mpsc::RecvTimeoutError::Timeout) } => {
+                io::Error::new(io::ErrorKind::TimedOut, "timed out")
+            }
+            other => std::io::Error::new(std::io::ErrorKind::Other, other)
+        }
     }
 }
 
@@ -52,6 +57,8 @@ pub enum ErrorKind {
     StreamConnectError,
     /// Channel receiving error
     ChannelRecvError,
+    /// Channel receiving error with timeout
+    ChannelRecvTimeoutError,
     /// Channel sending error
     ChannelSendError,
     /// Other error
@@ -63,6 +70,7 @@ impl fmt::Display for ErrorKind {
         match self {
             Self::StreamConnectError => write!(f, "Stream connecting error"),
             Self::ChannelRecvError => write!(f, "Channel receiving error"),
+            Self::ChannelRecvTimeoutError => write!(f, "Channel receiving error"),
             Self::ChannelSendError => write!(f, "Channel sending error"),
             Self::Other => write!(f, "Other error"),
         }
@@ -78,6 +86,9 @@ pub enum Inner {
     #[cfg(feature = "sync")]
     #[error("Sync channel receiving error: {0}")]
     SyncRecvError(#[from] std::sync::mpsc::RecvError),
+    #[cfg(feature = "sync")]
+    #[error("Sync channel with timeout receiving error: {0}")]
+    SyncRecvTimeoutError(#[from] std::sync::mpsc::RecvTimeoutError),
     #[cfg(feature = "sync")]
     #[error("Sync channel sending error: {0}")]
     SyncSendError(#[from] std::sync::mpsc::SendError<Vec<u8>>),
@@ -110,6 +121,8 @@ impl<'a> From<&'a Inner> for ErrorKind {
             Inner::SyncConnectError => ErrorKind::StreamConnectError,
             #[cfg(feature = "sync")]
             Inner::SyncRecvError(_) => ErrorKind::ChannelRecvError,
+            #[cfg(feature = "sync")]
+            Inner::SyncRecvTimeoutError(_) => ErrorKind::ChannelRecvTimeoutError,
             #[cfg(feature = "sync")]
             Inner::SyncSendError(_) => ErrorKind::ChannelSendError,
             #[cfg(feature = "async-futures")]
