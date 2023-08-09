@@ -22,7 +22,7 @@ macro_rules! ready {
 
 pin_project! {
     /// Asynchronous mock IO stream
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     pub struct MockStream {
         #[pin]
         read_half: ReadHalf,
@@ -98,7 +98,7 @@ impl AsyncWrite for MockStream {
 }
 
 /// Read half of asynchronous mock IO stream
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ReadHalf {
     receiver: Receiver<Vec<u8>>,
     remaining: Vec<u8>,
